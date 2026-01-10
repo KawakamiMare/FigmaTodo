@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { TodoForm } from "../components/TodoForm";
 import { TodoItem } from "../components/TodoItem";
+import { TodoEditDialog } from "../components/TodoEditDialog";
 import { Todo, Label } from "../types/todo";
 import { Button } from "../components/ui/button";
 import { ListChecks, Settings } from "lucide-react";
@@ -13,9 +14,13 @@ interface TodoListProps {
   onAddTodo: (text: string, deadline?: string, priority?: string, description?: string) => void;
   onToggleTodo: (id: string) => void;
   onDeleteTodo: (id: string) => void;
+  onUpdateTodo: (id: string, updates: Partial<Todo>) => void;
 }
 
-export function TodoList({ currentTime, todos, labels, onAddTodo, onToggleTodo, onDeleteTodo }: TodoListProps) {
+export function TodoList({ currentTime, todos, labels, onAddTodo, onToggleTodo, onDeleteTodo, onUpdateTodo }: TodoListProps) {
+  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+
   // 優先度が高く、期限が近いものを上に表示
   const sortedTodos = [...todos].sort((a, b) => {
     // 完了済みは下に
@@ -39,6 +44,15 @@ export function TodoList({ currentTime, todos, labels, onAddTodo, onToggleTodo, 
   });
 
   const activeTodos = todos.filter((todo) => !todo.completed).length;
+
+  const handleEditTodo = (todo: Todo) => {
+    setEditingTodo(todo);
+    setEditDialogOpen(true);
+  };
+
+  const handleSaveTodo = (id: string, updates: Partial<Todo>) => {
+    onUpdateTodo(id, updates);
+  };
 
   return (
     <div className="space-y-6">
@@ -74,10 +88,19 @@ export function TodoList({ currentTime, todos, labels, onAddTodo, onToggleTodo, 
               labels={labels}
               onToggle={onToggleTodo}
               onDelete={onDeleteTodo}
+              onEdit={handleEditTodo}
             />
           ))
         )}
       </div>
+
+      <TodoEditDialog
+        todo={editingTodo}
+        labels={labels}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        onSave={handleSaveTodo}
+      />
     </div>
   );
 }

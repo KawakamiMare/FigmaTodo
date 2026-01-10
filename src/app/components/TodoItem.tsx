@@ -3,29 +3,19 @@ import { Button } from "./ui/button";
 import { Trash2, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
-import { useNavigate } from "react-router-dom";
-import { Todo, Label } from "../types/todo";
+import { Todo, Label, Status } from "../types/todo";
 import { useState } from "react";
 import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
-
-export interface Todo {
-  id: string;
-  text: string;
-  completed: boolean;
-  deadline?: string;
-  priority?: string;
-  labels?: string[];
-}
 
 interface TodoItemProps {
   todo: Todo;
   labels: Label[];
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
+  onEdit: (todo: Todo) => void;
 }
 
-export function TodoItem({ todo, labels, onToggle, onDelete }: TodoItemProps) {
-  const navigate = useNavigate();
+export function TodoItem({ todo, labels, onToggle, onDelete, onEdit }: TodoItemProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const isOverdue = todo.deadline && new Date(todo.deadline) < new Date() && !todo.completed;
 
@@ -58,7 +48,39 @@ export function TodoItem({ todo, labels, onToggle, onDelete }: TodoItemProps) {
         return "bg-gray-100 text-gray-700";
     }
   };
-  
+
+  const getStatusLabel = (status?: Status) => {
+    if (!status) return null;
+    switch (status) {
+      case "not_started":
+        return "未着手";
+      case "in_progress":
+        return "進行中";
+      case "almost_done":
+        return "ほぼ完了";
+      case "stopped":
+        return "停止中";
+      default:
+        return null;
+    }
+  };
+
+  const getStatusColor = (status?: Status) => {
+    if (!status) return "";
+    switch (status) {
+      case "not_started":
+        return "bg-gray-100 text-gray-700";
+      case "in_progress":
+        return "bg-blue-100 text-blue-700";
+      case "almost_done":
+        return "bg-green-100 text-green-700";
+      case "stopped":
+        return "bg-orange-100 text-orange-700";
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
+  };
+
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setDeleteDialogOpen(true);
@@ -68,12 +90,16 @@ export function TodoItem({ todo, labels, onToggle, onDelete }: TodoItemProps) {
     onDelete(todo.id);
     setDeleteDialogOpen(false);
   };
+
+  const handleCardClick = () => {
+    onEdit(todo);
+  };
   
   return (
     <>
       <div
         className="flex items-center gap-3 p-4 bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors cursor-pointer"
-        onClick={() => navigate(`/todo/${todo.id}`)}
+        onClick={handleCardClick}
       >
         <Checkbox
           checked={todo.completed}
@@ -99,6 +125,15 @@ export function TodoItem({ todo, labels, onToggle, onDelete }: TodoItemProps) {
             >
               {getPriorityLabel(todo.priority)}
             </span>
+            {todo.status && (
+              <span
+                className={`px-2 py-0.5 rounded text-xs ${getStatusColor(
+                  todo.status
+                )}`}
+              >
+                {getStatusLabel(todo.status)}
+              </span>
+            )}
             {todoLabels.map((label) => (
               <span
                 key={label.id}

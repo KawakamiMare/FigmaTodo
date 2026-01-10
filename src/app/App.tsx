@@ -24,6 +24,7 @@ export default function App() {
       completed: true,
       deadline: "2026-01-01T10:00",
       priority: "high",
+      status: "almost_done",
       description: "優先度と期限でソートできる機能を実装する",
       labels: ["1"],
     },
@@ -33,6 +34,7 @@ export default function App() {
       completed: false,
       deadline: "2026-01-03T15:30",
       priority: "medium",
+      status: "in_progress",
       labels: ["2"],
     },
     {
@@ -40,6 +42,7 @@ export default function App() {
       text: "メールを確認する",
       completed: false,
       priority: "low",
+      status: "not_started",
     },
   ]);
 
@@ -154,6 +157,7 @@ export default function App() {
                   onAddTodo={addTodo}
                   onToggleTodo={toggleTodo}
                   onDeleteTodo={deleteTodo}
+                  onUpdateTodo={updateTodo}
                 />
               }
             />

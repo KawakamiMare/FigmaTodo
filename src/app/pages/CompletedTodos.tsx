@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Todo, Label } from "../types/todo";
+import { Todo, Label, Status } from "../types/todo";
 import { Button } from "../components/ui/button";
 import { ArrowLeft, Calendar } from "lucide-react";
 import { format } from "date-fns";
@@ -35,6 +35,38 @@ export function CompletedTodos({ todos, labels }: CompletedTodosProps) {
         return "bg-yellow-100 text-yellow-700";
       case "low":
         return "bg-green-100 text-green-700";
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
+  };
+
+  const getStatusLabel = (status?: Status) => {
+    if (!status) return null;
+    switch (status) {
+      case "not_started":
+        return "未着手";
+      case "in_progress":
+        return "進行中";
+      case "almost_done":
+        return "ほぼ完了";
+      case "stopped":
+        return "停止中";
+      default:
+        return null;
+    }
+  };
+
+  const getStatusColor = (status?: Status) => {
+    if (!status) return "";
+    switch (status) {
+      case "not_started":
+        return "bg-gray-100 text-gray-700";
+      case "in_progress":
+        return "bg-blue-100 text-blue-700";
+      case "almost_done":
+        return "bg-green-100 text-green-700";
+      case "stopped":
+        return "bg-orange-100 text-orange-700";
       default:
         return "bg-gray-100 text-gray-700";
     }
@@ -83,6 +115,15 @@ export function CompletedTodos({ todos, labels }: CompletedTodosProps) {
                         >
                           {getPriorityLabel(todo.priority)}
                         </span>
+                        {todo.status && (
+                          <span
+                            className={`px-2 py-0.5 rounded text-xs ${getStatusColor(
+                              todo.status
+                            )}`}
+                          >
+                            {getStatusLabel(todo.status)}
+                          </span>
+                        )}
                         {todoLabels.map((label) => (
                           <span
                             key={label.id}

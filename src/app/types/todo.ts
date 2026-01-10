@@ -1,4 +1,5 @@
 export type Priority = 'high' | 'medium' | 'low';
+export type Status = 'not_started' | 'in_progress' | 'almost_done' | 'stopped';
 
 export interface Label {
   id: string;
@@ -10,6 +11,7 @@ export interface Todo {
   id: string;
   text: string;
   completed: boolean;
+  status?: Status;
   deadline?: string;
   priority: Priority;
   description?: string;
